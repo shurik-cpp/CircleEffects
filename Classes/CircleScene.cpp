@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include "CircleScene.h"
+#include <iostream>
 
 
 USING_NS_CC;
@@ -92,6 +93,46 @@ bool CircleScene::init()
         // add the label as a child to this layer
         this->addChild(label, 1);
     }
+
+
+	const float CIRCLE_RADIUS = 10;
+	const int SEGMENTS = 150; // количество сегментов из которых рисуется кружок
+	const Vec2 WINDOW_CENTER(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2);
+
+
+	int objectsRadius = 30; // начальный радиус расположения кружков
+	int rowsCount = 5; // количество рядов
+	int distanceBetweenCircles = 3; // растояние между кружками
+
+	auto orange = Color3B::ORANGE;
+	int r = orange.r;
+	int g = orange.g;
+	int b = orange.b;
+
+	for (size_t i = 0; i < rowsCount; ++i)
+	{
+		int objectsCount = (objectsRadius * 2 + distanceBetweenCircles) / (CIRCLE_RADIUS - distanceBetweenCircles); // начальное количество кружков
+
+		for (size_t j = 0; j < objectsCount; ++j)
+		{
+			float angle = j * 2 * M_PI / objectsCount; // вычисляем угол между центрами кружков
+			const float x = WINDOW_CENTER.x + objectsRadius * cos(angle); // вычисляем координату X центра кружка
+			const float y = WINDOW_CENTER.y + objectsRadius * sin(angle); // вычисляем координату Y центра кружка
+			Vec2 position(x, y);
+			// отрисовываем кружок с координатами (x, y)
+			auto circle = DrawNode::create();
+			std::cout << "Circle number: " << circles.size() << std::endl;
+			std::cout << "Color: (" << r << ", " << g << ", " << b << ")\n";
+			circle->drawSolidCircle(position, CIRCLE_RADIUS, 360, SEGMENTS, Color4F(Color3B(r, g, b)));
+			circles.push_back(circle);
+			this->addChild(circle);
+			// TODO: Уже тут можно использовать random
+			g = (g + 5 < 255) ? g + 5 : 127;
+		}
+
+		objectsRadius += CIRCLE_RADIUS * 2 + distanceBetweenCircles;
+	}
+
 
 
     return true;

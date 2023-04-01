@@ -42,6 +42,7 @@ public:
 	CREATE_FUNC(CircleScene);
 
 private:
+	std::vector<cocos2d::DrawNode*> circles;
 
 };
 
