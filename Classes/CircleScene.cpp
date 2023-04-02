@@ -24,9 +24,21 @@
 
 #include "CircleScene.h"
 #include <iostream>
-
+#include <cstdlib>
+#include <ctime>
 
 USING_NS_CC;
+
+
+inline int GetRandom(const int min, const int max) {
+	static bool do_once = true;
+	if (do_once) {
+		std::srand(static_cast<unsigned int>(std::time(nullptr)));
+		do_once = false;
+	}
+
+	return std::rand() % (max - min + 1) + min;
+}
 
 Scene* CircleScene::createScene()
 {
@@ -104,10 +116,10 @@ bool CircleScene::init()
 	int rowsCount = 5; // количество рядов
 	int distanceBetweenCircles = 3; // растояние между кружками
 
-	auto orange = Color3B::ORANGE;
-	int r = orange.r;
-	int g = orange.g;
-	int b = orange.b;
+	//auto orange = Color3B::ORANGE;
+	int r = 183; //orange.r;
+	int g = 133; //orange.g;
+	int b = 0; //orange.b;
 
 	for (size_t i = 0; i < rowsCount; ++i)
 	{
@@ -126,8 +138,9 @@ bool CircleScene::init()
 			circle->drawSolidCircle(position, CIRCLE_RADIUS, 360, SEGMENTS, Color4F(Color3B(r, g, b)));
 			circles.push_back(circle);
 			this->addChild(circle);
-			// TODO: Уже тут можно использовать random
-			g = (g + 5 < 255) ? g + 5 : 127;
+
+			r = GetRandom(130, 205);
+			g = r - 50;
 		}
 
 		objectsRadius += CIRCLE_RADIUS * 2 + distanceBetweenCircles;
