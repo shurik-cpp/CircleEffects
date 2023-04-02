@@ -4,6 +4,10 @@
 #include "cocos2d.h"
 #include <iostream>
 
+enum class CircleEffects {
+	RANDOM,
+};
+
 class Circles
 {
 public:
@@ -14,9 +18,16 @@ public:
 
 	void Tick();
 
+	void SetCenterPosition(const cocos2d::Vec2 position);
+	void SetRowsCount(const size_t rows);
+	void SetDistance(const size_t distance);
+	void SetSpeed(const float delta);
+	void SetColor(const cocos2d::Color3B color);
+	void SetEffects(const CircleEffects& effect);
+
 private:
 	cocos2d::Vec2 _centerPosition;
-	float circleRadius = 10;
+	CircleEffects effect;
 
 	int locationRadius = 30; // начальный радиус расположения кружков
 	int rowsCount = 5; // количество рядов
