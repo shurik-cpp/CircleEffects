@@ -127,12 +127,17 @@ bool CircleScene::init()
 // а затем умножайте их на дельту, переданную в функцию обновления.
 void CircleScene::update(float delta) {
 	static size_t counter = 0;
-	if (counter > 4) {
+	if (counter > 15) {
+		//circles->SetEffects(CircleEffects::RANDOM);
+		circles->SetEffects(CircleEffects::SMOOTH_RANDOM);
 		circles->Tick();
 		counter = 0;
 	}
-	else
+	else {
+		circles->SetEffects(CircleEffects::ROTATE);
+		circles->Tick();
 		counter++;
+	}
 }
 
 

@@ -6,6 +6,8 @@
 
 enum class CircleEffects {
 	RANDOM,
+	SMOOTH_RANDOM,
+	ROTATE,
 };
 
 class Circles
@@ -27,7 +29,7 @@ public:
 
 private:
 	cocos2d::Vec2 _centerPosition;
-	CircleEffects effect;
+	CircleEffects _effect;
 
 	int locationRadius = 30; // начальный радиус расположения кружков
 	int rowsCount = 5; // количество рядов

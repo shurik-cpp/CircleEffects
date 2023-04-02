@@ -31,7 +31,8 @@ Circles::Circles(const Vec2& centerPosition)
 	: _centerPosition(centerPosition)
 {
 	Init();
-	effect = CircleEffects::RANDOM;
+	_effect = CircleEffects::RANDOM;
+	Tick();
 }
 
 const std::vector<cocos2d::Sprite*>& Circles::GetObjects() const
@@ -74,24 +75,52 @@ void Circles::SetCenterPosition(const cocos2d::Vec2 position)
 	_centerPosition = position;
 }
 
+void Circles::SetEffects(const CircleEffects& effect)
+{
+	_effect = effect;
+}
+
 void Circles::Tick()
 {
-	switch (effect) {
+	switch (_effect) {
 		case CircleEffects::RANDOM:
 			for (auto& circle : circles) {
 				r = GetRandom(130, 205);
 
-				if (!GetRandom(0, 10)) {
+				if (!GetRandom(0, 100)) {
 					b = g = r + GetRandom(0, 3);
 				}
 				else {
 					g = r - 50;
 					b = 0;
 				}
-				Vec2 position = circle->getPosition();
 				circle->setColor(Color3B(r, g, b));
 			}
 		break;
+		case CircleEffects::SMOOTH_RANDOM:
+			for (auto& circle : circles) {
+				int rr = GetRandom(-5, 5);
+				int newRed = r + rr;
+				if (newRed > 205)
+					r = 205;
+				else if (newRed < 130)
+					r = 130;
+				else
+					r = newRed;
+
+				g = r - 50;
+				b = 0;
+				circle->setColor(Color3B(r, g, b));
+			}
+		break;
+		case CircleEffects::ROTATE:
+			for (auto& circle : circles) {
+				Vec2 position = circle->getPosition();
+				position.rotate(_centerPosition, 0.001);
+				circle->setPosition(position);
+			}
+		break;
+
 
 		default:
 		break;
