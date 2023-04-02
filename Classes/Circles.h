@@ -10,19 +10,17 @@ public:
 	Circles();
 	Circles(const cocos2d::Vec2& centerPosition);
 
-	const std::vector<cocos2d::Sprite*>& GetObjects();
+	const std::vector<cocos2d::Sprite*>& GetObjects() const;
 
 	void Tick();
 
 private:
 	cocos2d::Vec2 _centerPosition;
 	float circleRadius = 10;
-	int segments = 150; // количество сегментов из которых рисуется кружок
 
-	int objectsRadius = 30; // начальный радиус расположения кружков
+	int locationRadius = 30; // начальный радиус расположения кружков
 	int rowsCount = 5; // количество рядов
-	int distanceBetweenCircles = 3; // растояние между кружками
-
+	int distanceBetweenCircles = 0; // растояние между кружками
 
 	//auto orange = Color3B::ORANGE;
 	int r = 183; //orange.r;
@@ -31,7 +29,8 @@ private:
 
 	std::vector<cocos2d::Sprite*> circles;
 
-	inline int GetRandom(const int min, const int max);
+	inline int GetRandom(const int min, const int max) const;
+	int GetObjectCount(const float objectRadius, const float locationRadius) const;
 	void Init();
 };
 
