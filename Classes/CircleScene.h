@@ -26,7 +26,9 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "Circles.h"
 #include <memory>
+
 
 class CircleScene : public cocos2d::Scene
 {
@@ -34,6 +36,7 @@ public:
     static cocos2d::Scene* createScene();
 
     virtual bool init();
+	virtual void update(float delta) override;
     
     // a selector callback
     void menuCloseCallback(cocos2d::Ref* pSender);
@@ -41,8 +44,8 @@ public:
     // implement the "static create()" method manually
 	CREATE_FUNC(CircleScene);
 
-private:
-	std::vector<cocos2d::DrawNode*> circles;
+	std::unique_ptr<Circles> circles;
+
 
 };
 

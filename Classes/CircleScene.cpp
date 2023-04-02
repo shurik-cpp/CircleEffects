@@ -23,22 +23,9 @@
  ****************************************************************************/
 
 #include "CircleScene.h"
-#include <iostream>
-#include <cstdlib>
-#include <ctime>
 
 USING_NS_CC;
 
-
-inline int GetRandom(const int min, const int max) {
-	static bool do_once = true;
-	if (do_once) {
-		std::srand(static_cast<unsigned int>(std::time(nullptr)));
-		do_once = false;
-	}
-
-	return std::rand() % (max - min + 1) + min;
-}
 
 Scene* CircleScene::createScene()
 {
@@ -93,7 +80,7 @@ bool CircleScene::init()
 
     /////////////////////////////
 
-	auto label = Label::createWithTTF("Circle Effects", "fonts/Marker Felt.ttf", 24);
+	auto label = Label::createWithTTF("Circle Effects", "fonts/Marker Felt.ttf", 14);
 	if (label == nullptr) {
         problemLoading("'fonts/Marker Felt.ttf'");
     }
@@ -107,48 +94,45 @@ bool CircleScene::init()
     }
 
 
-	const float CIRCLE_RADIUS = 10;
-	const int SEGMENTS = 150; // количество сегментов из которых рисуется кружок
+
 	const Vec2 WINDOW_CENTER(origin.x + visibleSize.width / 2, origin.y + visibleSize.height / 2);
+	auto c = new Circles(WINDOW_CENTER);
+	circles = std::unique_ptr<Circles>(c);
 
-
-	int objectsRadius = 30; // начальный радиус расположения кружков
-	int rowsCount = 5; // количество рядов
-	int distanceBetweenCircles = 3; // растояние между кружками
-
-	//auto orange = Color3B::ORANGE;
-	int r = 183; //orange.r;
-	int g = 133; //orange.g;
-	int b = 0; //orange.b;
-
-	for (size_t i = 0; i < rowsCount; ++i)
-	{
-		int objectsCount = (objectsRadius * 2 + distanceBetweenCircles) / (CIRCLE_RADIUS - distanceBetweenCircles); // начальное количество кружков
-
-		for (size_t j = 0; j < objectsCount; ++j)
-		{
-			float angle = j * 2 * M_PI / objectsCount; // вычисляем угол между центрами кружков
-			const float x = WINDOW_CENTER.x + objectsRadius * cos(angle); // вычисляем координату X центра кружка
-			const float y = WINDOW_CENTER.y + objectsRadius * sin(angle); // вычисляем координату Y центра кружка
-			Vec2 position(x, y);
-			// отрисовываем кружок с координатами (x, y)
-			auto circle = DrawNode::create();
-			std::cout << "Circle number: " << circles.size() << std::endl;
-			std::cout << "Color: (" << r << ", " << g << ", " << b << ")\n";
-			circle->drawSolidCircle(position, CIRCLE_RADIUS, 360, SEGMENTS, Color4F(Color3B(r, g, b)));
-			circles.push_back(circle);
-			this->addChild(circle);
-
-			r = GetRandom(130, 205);
-			g = r - 50;
-		}
-
-		objectsRadius += CIRCLE_RADIUS * 2 + distanceBetweenCircles;
+	for (const auto& it : circles->GetObjects()) {
+		this->addChild(it);
 	}
 
 
+	// Запускаем игровой цикл
+	// Как только игровой цикл открывается, он вызывает функцию CircleScene::update(float dt)
+	// у нас есть контроль над приоритетом, с которым программа обновления будет просматривать нашу функцию обновления.
+	// По умолчанию, когда мы вызываем scheduleUpdate(), наша функция обновления будет вызываться для каждого кадра.
+	// Если узел, который мы обновляем, не нужно обновлять каждый кадр, мы просто тратим впустую мощность процессора
+	// (и время автономной работы). Если есть обновление с более низким приоритетом, мы можем использовать:
+	// this->scheduleUpdateWithPriority(42);
+	// Сначала вызывает все update(), для которых не установлен приоритет. Затем вызовет узел с наименьшим значением,
+	// затем следующий с наибольшим и т.д.
+	// (https://gamefromscratch.com/cocos2d-x-tutorial-series-game-loop-updates-and-action-handling/)
+	this->scheduleUpdate();
 
-    return true;
+
+	return true;
+}
+
+// Параметр, передаваемый для обновления — это значение, представляющее количество времени в секундах
+// с момента последнего вызова функции обновления.
+// Поэтому, если с момента последнего вызова обновления прошло 1/10 секунды, переданное значение будет равно 0.1
+// В двух словах, при покадровом перемещении выражайте свои единицы в секундах,
+// а затем умножайте их на дельту, переданную в функцию обновления.
+void CircleScene::update(float delta) {
+	static size_t counter = 0;
+	if (counter > 4) {
+		circles->Tick();
+		counter = 0;
+	}
+	else
+		counter++;
 }
 
 
