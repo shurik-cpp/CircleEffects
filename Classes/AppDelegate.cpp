@@ -37,6 +37,7 @@ static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size smallResolutionSize = cocos2d::Size(480, 320);
 static cocos2d::Size mediumResolutionSize = cocos2d::Size(1024, 768);
 static cocos2d::Size largeResolutionSize = cocos2d::Size(2048, 1536);
+static cocos2d::Size myResolutionSize = cocos2d::Size(1900, 950);
 
 AppDelegate::AppDelegate()
 {
@@ -72,15 +73,18 @@ bool AppDelegate::applicationDidFinishLaunching() {
     auto glview = director->getOpenGLView();
     if(!glview) {
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_WIN32) || (CC_TARGET_PLATFORM == CC_PLATFORM_MAC) || (CC_TARGET_PLATFORM == CC_PLATFORM_LINUX)
-		glview = GLViewImpl::createWithRect("CircleEffects", cocos2d::Rect(0, 0, mediumResolutionSize.width, mediumResolutionSize.height));
+		glview = GLViewImpl::createWithRect("CircleEffects", cocos2d::Rect(0, 0, myResolutionSize.width, myResolutionSize.height));
 #else
 		glview = GLViewImpl::create("CircleEffects");
 #endif
         director->setOpenGLView(glview);
+		//GLViewImpl* view = (GLViewImpl*)Director::getInstance()->getOpenGLView();
+		//view->setFullscreen();
     }
 
     // turn on display FPS
     director->setDisplayStats(true);
+
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0f / 60);

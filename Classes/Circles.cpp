@@ -32,12 +32,15 @@ Circles::Circles(const Vec2& centerPosition)
 {
 	Init();
 	_effect = CircleEffects::RANDOM;
-	Tick();
+	Tick(CircleEffects::RANDOM);
 }
 
-const std::vector<cocos2d::Sprite*>& Circles::GetObjects() const
+std::vector<cocos2d::Sprite*> Circles::GetObjects() const
 {
-	return circles;
+	std::vector<cocos2d::Sprite*> result;
+	for (const auto& it : circles)
+		result.emplace_back(it.sprite);
+	return result;
 }
 
 void Circles::Init()
@@ -50,7 +53,7 @@ void Circles::Init()
 		int objectsCount = GetObjectCount(spriteRadius, locationRadius);
 
 		if (i == rowsCount - 1)
-			objectsCount = 7;
+			objectsCount = 15;
 
 		for (size_t j = 0; j < objectsCount; ++j)
 		{
@@ -63,7 +66,9 @@ void Circles::Init()
 			std::cout << "Circle number: " << circles.size() << std::endl;
 			std::cout << "Position: (" << position.x << ", " << position.y << ")\n";
 			circle->setPosition(position);
-			circles.push_back(circle);
+			circle->setColor(Color3B(255, 190, 0));
+			// TODO: разделить общий массив на массивы по locationRadius
+			circles.push_back(SingleCircle{false, circle});
 		}
 
 		locationRadius += spriteRadius * 2 + distanceBetweenCircles;
@@ -80,44 +85,52 @@ void Circles::SetEffects(const CircleEffects& effect)
 	_effect = effect;
 }
 
-void Circles::Tick()
+void Circles::Tick(const CircleEffects& effect)
 {
-	switch (_effect) {
+	switch (effect) {
 		case CircleEffects::RANDOM:
+		{
+			int red, green, blue;
 			for (auto& circle : circles) {
-				r = GetRandom(130, 205);
+				red = GetRandom(130, 205);
 
 				if (!GetRandom(0, 100)) {
-					b = g = r + GetRandom(0, 3);
+					blue = green = red + GetRandom(0, 15);
 				}
 				else {
-					g = r - 50;
-					b = 0;
+					green = red - 50;
+					blue = 0;
 				}
-				circle->setColor(Color3B(r, g, b));
+				circle.sprite->setColor(Color3B(red, green, blue));
 			}
+		}
 		break;
 		case CircleEffects::SMOOTH_RANDOM:
+		{
 			for (auto& circle : circles) {
-				int rr = GetRandom(-5, 5);
-				int newRed = r + rr;
-				if (newRed > 205)
-					r = 205;
-				else if (newRed < 130)
-					r = 130;
-				else
-					r = newRed;
+				int red = circle.sprite->getColor().r;
+				if (red >= 200)
+					circle.colorIncrement = false;
+				else if (red <= 90)
+					circle.colorIncrement = true;
 
-				g = r - 50;
-				b = 0;
-				circle->setColor(Color3B(r, g, b));
+				const int randomMax = GetRandom(0, (red > 150 || red < 110) ? 15 : 5);
+				if (circle.colorIncrement)
+					red += GetRandom(0, randomMax);
+				else
+					red -= GetRandom(0, randomMax);
+
+				const int green = red - GetRandom(50, 70);
+				const int blue = GetRandom(0, 10);
+				circle.sprite->setColor(Color3B(red, green, blue));
 			}
+		}
 		break;
 		case CircleEffects::ROTATE:
 			for (auto& circle : circles) {
-				Vec2 position = circle->getPosition();
+				Vec2 position = circle.sprite->getPosition();
 				position.rotate(_centerPosition, 0.001);
-				circle->setPosition(position);
+				circle.sprite->setPosition(position);
 			}
 		break;
 
