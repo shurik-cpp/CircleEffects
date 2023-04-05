@@ -48,7 +48,8 @@ private:
 		cocos2d::Sprite* sprite;
 	};
 
-	std::vector<SingleCircle> circles;
+	// [ряды в окружности][кружки]
+	std::vector<std::vector<SingleCircle>> circles;
 
 	inline int GetRandom(const int min, const int max) const;
 	int GetObjectCount(const float objectRadius, const float locationRadius) const;

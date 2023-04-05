@@ -139,7 +139,7 @@ void CircleScene::update(float delta) {
 	else {
 		//circles->Tick(CircleEffects::SMOOTH_RANDOM);
 		circles->Tick(CircleEffects::SMOOTH_OPACITY);
-		//circles->Tick(CircleEffects::ROTATE);
+		circles->Tick(CircleEffects::ROTATE);
 		counter++;
 	}
 }

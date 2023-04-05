@@ -38,8 +38,9 @@ Circles::Circles(const Vec2& centerPosition)
 std::vector<cocos2d::Sprite*> Circles::GetObjects() const
 {
 	std::vector<cocos2d::Sprite*> result;
-	for (const auto& it : circles)
-		result.emplace_back(it.sprite);
+	for (const auto& row : circles)
+		for (const auto& it : row)
+			result.emplace_back(it.sprite);
 	return result;
 }
 
@@ -55,6 +56,8 @@ void Circles::Init()
 		if (i == rowsCount - 1)
 			objectsCount = lastRowCount;
 
+		std::vector<SingleCircle> circlesInRow;
+
 		for (size_t j = 0; j < objectsCount; ++j)
 		{
 			float angle = j * 2 * M_PI / objectsCount; // вычисляем угол между центрами кружков
@@ -67,10 +70,11 @@ void Circles::Init()
 			std::cout << "Position: (" << position.x << ", " << position.y << ")\n";
 			circle->setPosition(position);
 			circle->setColor(Color3B(255, 190, 0));
-			// TODO: разделить общий массив на массивы по locationRadius
-			circles.push_back(SingleCircle{false, static_cast<bool>(GetRandom(0, 1)), circle});
+
+			circlesInRow.emplace_back(SingleCircle{false, static_cast<bool>(GetRandom(0, 1)), circle});
 		}
 
+		circles.emplace_back(circlesInRow);
 		locationRadius += spriteRadius * 2 + distanceBetweenCircles;
 	}
 }
@@ -91,69 +95,102 @@ void Circles::Tick(const CircleEffects& effect)
 		case CircleEffects::RANDOM:
 		{
 			int red, green, blue;
-			for (auto& circle : circles) {
-				red = GetRandom(130, 205);
+			for (size_t i = 0; i < circles.size(); ++i) {
+				auto& row = circles[i];
+				for (auto& circle : row) {
+					red = GetRandom(130, 205);
 
-				if (!GetRandom(0, 100)) {
-					blue = green = red + GetRandom(0, 15);
+					if (!GetRandom(0, 100)) {
+						blue = green = red + GetRandom(0, 15);
+					}
+					else {
+						green = red - 50;
+						blue = 0;
+					}
+					circle.sprite->setColor(Color3B(red, green, blue));
 				}
-				else {
-					green = red - 50;
-					blue = 0;
-				}
-				circle.sprite->setColor(Color3B(red, green, blue));
 			}
 		}
 		break;
 		case CircleEffects::SMOOTH_RANDOM:
 		{
-			for (auto& circle : circles) {
-				int red = circle.sprite->getColor().r;
-				if (red >= 200)
-					circle.colorIncrement = false;
-				else if (red <= 90)
-					circle.colorIncrement = true;
+			for (size_t i = 0; i < circles.size(); ++i) {
+				auto& row = circles[i];
+				for (auto& circle : row) {
+					int red = circle.sprite->getColor().r;
+					if (red >= 200)
+						circle.colorIncrement = false;
+					else if (red <= 90)
+						circle.colorIncrement = true;
 
-				const int randomMax = GetRandom(0, (red > 150 || red < 110) ? 15 : 5);
-				if (circle.colorIncrement)
-					red += GetRandom(0, randomMax);
-				else
-					red -= GetRandom(0, randomMax);
+					const int randomMax = GetRandom(0, (red > 150 || red < 110) ? 15 : 5);
+					if (circle.colorIncrement)
+						red += GetRandom(0, randomMax);
+					else
+						red -= GetRandom(0, randomMax);
 
-				const int green = red - GetRandom(50, 70);
-				const int blue = GetRandom(0, 10);
-				circle.sprite->setColor(Color3B(red, green, blue));
+					const int green = red - GetRandom(50, 70);
+					const int blue = GetRandom(0, 10);
+					circle.sprite->setColor(Color3B(red, green, blue));
+				}
 			}
 		}
 		break;
 		case CircleEffects::ROTATE:
 		{
-			for (auto& circle : circles) {
-				Vec2 position = circle.sprite->getPosition();
-				position.rotate(_centerPosition, 0.001);
-				circle.sprite->setPosition(position);
+			for (size_t i = 0; i < circles.size(); ++i) {
+				auto& row = circles[i];
+				for (auto& circle : row) {
+					Vec2 position = circle.sprite->getPosition();
+					position.rotate(_centerPosition, 0.001);
+					circle.sprite->setPosition(position);
+				}
 			}
 		}
 		break;
 		case CircleEffects::SMOOTH_OPACITY:
 		{
-			for (auto& circle : circles) {
-				int opacity = circle.sprite->getOpacity();
-				const int randomMax = GetRandom(0, (opacity > 200 || opacity < 150) ? 15 : 5);
-				if (opacity + randomMax >= 255 && opacity - randomMax <= 0)
-					continue;
+			for (size_t i = 0; i < circles.size(); ++i) {
+				auto& row = circles[i];
+				for (auto& circle : row) {
+					int opacity = circle.sprite->getOpacity();
+					const int randomMax = GetRandom(0, (opacity > 200 || opacity < 150) ? 15 : 8);
+					int minValue = 0;
+					int maxValue = 255;
+					// для внутренних рядов
+					if (i < circles.size() / 3) {
+						minValue = (255 / 3) * 2;
+					}
+					// для средних рядов
+					else if (i < (circles.size() / 3) * 2) {
+						minValue = 255 / 3;
+					}
+					// для наружних рядов
+					else {
+						minValue = 0;
+						maxValue = (255 / 3) * 2;
+					}
+					// для самого наружнего кольца
+					if (i == circles.size() - 1) {
+						minValue = 0;
+						maxValue = 255 / 4;
+					}
 
-				if (opacity + randomMax >= 255)
-					circle.opacityIncrement = false;
-				else if (opacity - randomMax <= 0)
-					circle.opacityIncrement = true;
+					if (opacity + randomMax >= maxValue && opacity - randomMax <= minValue)
+						continue;
 
-				if (circle.opacityIncrement)
-					opacity += GetRandom(0, randomMax);
-				else
-					opacity -= GetRandom(0, randomMax);
+					if (opacity + randomMax >= maxValue)
+						circle.opacityIncrement = false;
+					else if (opacity - randomMax <= minValue)
+						circle.opacityIncrement = true;
 
-				circle.sprite->setOpacity(opacity);
+					if (circle.opacityIncrement)
+						opacity += GetRandom(0, randomMax);
+					else
+						opacity -= GetRandom(0, randomMax);
+
+					circle.sprite->setOpacity(opacity);
+				}
 			}
 		}
 		break;
