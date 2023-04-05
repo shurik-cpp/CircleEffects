@@ -7,6 +7,7 @@
 enum class CircleEffects {
 	RANDOM,
 	SMOOTH_RANDOM,
+	SMOOTH_OPACITY,
 	ROTATE,
 };
 
@@ -37,11 +38,13 @@ private:
 	int lastRowCount = 0; // количество кружков в последнем ряду
 
 	struct SingleCircle {
-		explicit SingleCircle(bool _colorIncrement, cocos2d::Sprite* _sprite)
+		explicit SingleCircle(bool _colorIncrement, bool _opacityIncrement, cocos2d::Sprite* _sprite)
 			: colorIncrement(_colorIncrement)
+			, opacityIncrement(_opacityIncrement)
 			, sprite(_sprite)
 		{}
 		bool colorIncrement;
+		bool opacityIncrement;
 		cocos2d::Sprite* sprite;
 	};
 

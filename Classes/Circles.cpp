@@ -68,7 +68,7 @@ void Circles::Init()
 			circle->setPosition(position);
 			circle->setColor(Color3B(255, 190, 0));
 			// TODO: разделить общий массив на массивы по locationRadius
-			circles.push_back(SingleCircle{false, circle});
+			circles.push_back(SingleCircle{false, static_cast<bool>(GetRandom(0, 1)), circle});
 		}
 
 		locationRadius += spriteRadius * 2 + distanceBetweenCircles;
@@ -127,13 +127,36 @@ void Circles::Tick(const CircleEffects& effect)
 		}
 		break;
 		case CircleEffects::ROTATE:
+		{
 			for (auto& circle : circles) {
 				Vec2 position = circle.sprite->getPosition();
 				position.rotate(_centerPosition, 0.001);
 				circle.sprite->setPosition(position);
 			}
+		}
 		break;
+		case CircleEffects::SMOOTH_OPACITY:
+		{
+			for (auto& circle : circles) {
+				int opacity = circle.sprite->getOpacity();
+				const int randomMax = GetRandom(0, (opacity > 200 || opacity < 150) ? 15 : 5);
+				if (opacity + randomMax >= 255 && opacity - randomMax <= 0)
+					continue;
 
+				if (opacity + randomMax >= 255)
+					circle.opacityIncrement = false;
+				else if (opacity - randomMax <= 0)
+					circle.opacityIncrement = true;
+
+				if (circle.opacityIncrement)
+					opacity += GetRandom(0, randomMax);
+				else
+					opacity -= GetRandom(0, randomMax);
+
+				circle.sprite->setOpacity(opacity);
+			}
+		}
+		break;
 
 		default:
 		break;
