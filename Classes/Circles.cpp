@@ -53,7 +53,7 @@ void Circles::Init()
 		int objectsCount = GetObjectCount(spriteRadius, locationRadius);
 
 		if (i == rowsCount - 1)
-			objectsCount = 15;
+			objectsCount = lastRowCount;
 
 		for (size_t j = 0; j < objectsCount; ++j)
 		{

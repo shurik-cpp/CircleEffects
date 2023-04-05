@@ -31,9 +31,10 @@ private:
 	cocos2d::Vec2 _centerPosition;
 	CircleEffects _effect;
 
-	int locationRadius = 40; // начальный радиус расположения кружков
-	int rowsCount = 11; // количество рядов
-	int distanceBetweenCircles = 0; // растояние между кружками
+	int locationRadius = 35; // начальный радиус расположения кружков
+	int rowsCount = 10; // количество рядов
+	int distanceBetweenCircles = 1; // растояние между кружками
+	int lastRowCount = 0; // количество кружков в последнем ряду
 
 	struct SingleCircle {
 		explicit SingleCircle(bool _colorIncrement, cocos2d::Sprite* _sprite)
