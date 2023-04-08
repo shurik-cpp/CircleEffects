@@ -5,10 +5,12 @@
 #include <iostream>
 
 enum class CircleEffects {
-	RANDOM,
-	SMOOTH_RANDOM,
+	RANDOM_COLOR,
+	SMOOTH_RANDOM_COLOR,
 	SMOOTH_OPACITY,
-	ROTATE,
+	ROTATE_CV,
+	ROTATE_CCV,
+	DIFFERENT_ROTATION
 };
 
 class Circles
@@ -20,6 +22,7 @@ public:
 	std::vector<cocos2d::Sprite*> GetObjects() const;
 
 	void Tick(const CircleEffects& effect);
+	void Tick();
 
 	void SetCenterPosition(const cocos2d::Vec2 position);
 	void SetRowsCount(const size_t rows);
@@ -32,9 +35,10 @@ private:
 	cocos2d::Vec2 _centerPosition;
 	CircleEffects _effect;
 
-	int locationRadius = 35; // начальный радиус расположения кружков
-	int rowsCount = 10; // количество рядов
-	int distanceBetweenCircles = 1; // растояние между кружками
+	std::string spriteFileName = "circle_small.png"; // имя файла спрайта
+	int rowRadius = 25; // начальный радиус расположения кружков
+	int rowsCount = 15; // количество рядов
+	float distanceBetweenCircles = 0.3; // растояние между кружками
 	int lastRowCount = 0; // количество кружков в последнем ряду
 
 	struct SingleCircle {
