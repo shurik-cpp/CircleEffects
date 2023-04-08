@@ -2,8 +2,19 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <iomanip>
 
 USING_NS_CC;
+
+inline float DegreesToRadians(float degree)
+{
+	return degree * (M_PI / 180);
+}
+
+inline float RadiansToDegrees(float radians)
+{
+	return radians * (180 / M_PI);
+}
 
 
 inline int Circles::GetRandom(const int min, const int max) const {
@@ -31,7 +42,7 @@ Circles::Circles(const Vec2& centerPosition)
 	: _centerPosition(centerPosition)
 {
 	Init();
-	Tick(CircleEffects::RANDOM_COLOR);
+	//Tick(CircleEffects::RANDOM_COLOR);
 }
 
 std::vector<cocos2d::Sprite*> Circles::GetObjects() const
@@ -55,23 +66,62 @@ void Circles::Init()
 
 		if (i == rowsCount - 1)
 			objectsCount = lastRowCount;
-
+		float lastCos = 1;
+		int lastRed = 255;
 		std::vector<SingleCircle> circlesInRow;
 		for (size_t j = 0; j < objectsCount; ++j)
 		{
-			float angle = j * 2 * M_PI / objectsCount; // вычисляем угол между центрами кружков
-			const float x = _centerPosition.x + rowRadius * cos(angle); // вычисляем координату X центра кружка
-			const float y = _centerPosition.y + rowRadius * sin(angle); // вычисляем координату Y центра кружка
+			// вычисляем угол между центрами кружков
+			float angleRad = j * 2 * M_PI / objectsCount;
+			float angleDegree = RadiansToDegrees(angleRad);
+			const float cos = std::cos(angleRad);
+			const float sin = std::sin(angleRad);
+			// вычисляем координату X центра кружка
+			const float x = _centerPosition.x + rowRadius * cos;
+			// вычисляем координату Y центра кружка
+			const float y = _centerPosition.y + rowRadius * sin;
 			Vec2 position(x, y);
 			// отрисовываем кружок с координатами (x, y)
 			auto circle = Sprite::create(spriteFileName);
-			std::cout << "Circle number: " << circleCount << std::endl;
-			std::cout << "Position: (" << position.x << ", " << position.y << ")\n";
+
+			// задаем цвет кругляшу, в зависимости от угла его расположения
+			int red;
+			if (cos < lastCos)
+				red = GetRandom(lastRed - 5, lastRed - 1);
+			else
+				red = GetRandom(lastRed + 1, lastRed + 5);
+			// ограничиваем цветность
+			if (red < 120)
+				red = 120;
+			else if (red > 255)
+				red = 255;
+
+			// TODO: вывести формулу зависимости green и blue от red...
+			int green = red * 1.5;
+			int blue = green * 1.5;
+			if (green < 0)
+				green = 0;
+			else if (green > 255)
+				green = 255;
+			if (blue < 0)
+				blue = 0;
+			else if (blue > 255)
+				blue = 255;
+			circle->setColor(Color3B(red, green, blue));
+
+			// сместим позицию кругляша, доворотом вектора на 45 град CCV относительно центра массива кругляшей
+			position.rotate(_centerPosition, DegreesToRadians(45));
 			circle->setPosition(position);
-			//circle->setColor(Color3B(255, 190, 0));
 
 			circlesInRow.emplace_back(SingleCircle{false, static_cast<bool>(GetRandom(0, 1)), circle});
+
+			std::cout << "Circle number: " << circleCount << std::endl;
+			std::cout << std::fixed << std::setprecision(2);
+			std::cout << "Position: (" << position.x << ", " << position.y << ")\n";
+			std::cout << "Angle: " << angleDegree << ", sin: " << sin << ", cos: " << cos << std::endl;
 			circleCount++;
+			lastRed = red;
+			lastCos = cos;
 		}
 
 		circles.emplace_back(circlesInRow);

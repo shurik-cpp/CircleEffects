@@ -52,9 +52,9 @@ bool CircleScene::init()
     auto visibleSize = Director::getInstance()->getVisibleSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-	Color4B blueSkyColor(Color3B(184, 237, 255));
-	LayerColor* backgroundLayer = LayerColor::create(blueSkyColor);
-	this->addChild(backgroundLayer, 0);
+//	Color4B blueSkyColor(Color3B(184, 237, 255));
+//	LayerColor* backgroundLayer = LayerColor::create(blueSkyColor);
+//	this->addChild(backgroundLayer, 0);
 
     /////////////////////////////
     // 2. add a menu item with "X" image, which is clicked to quit the program
