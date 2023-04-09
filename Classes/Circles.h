@@ -36,10 +36,11 @@ private:
 	CircleEffects _effect;
 
 	std::string spriteFileName = "circle_small.png"; // имя файла спрайта
-	int rowRadius = 25; // начальный радиус расположения кружков
+	int rowRadius = 30; // начальный радиус расположения кружков
 	int rowsCount = 15; // количество рядов
 	float distanceBetweenCircles = 0.3; // растояние между кружками
 	int lastRowCount = 0; // количество кружков в последнем ряду
+	float rotateAngle = 45; // угол доворота всего массива
 
 	struct SingleCircle {
 		explicit SingleCircle(bool _colorIncrement, bool _opacityIncrement, cocos2d::Sprite* _sprite)

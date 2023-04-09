@@ -16,6 +16,13 @@ inline float RadiansToDegrees(float radians)
 	return radians * (180 / M_PI);
 }
 
+std::ostream& operator<<(std::ostream& stream, const Color3B& color) {
+	const int r = color.r;
+	const int g = color.g;
+	const int b = color.b;
+	stream << "Color3B(" << r << ", " << g << ", " << b << ")";
+	return stream;
+}
 
 inline int Circles::GetRandom(const int min, const int max) const {
 	static bool do_once = true;
@@ -25,6 +32,42 @@ inline int Circles::GetRandom(const int min, const int max) const {
 	}
 
 	return std::rand() % (max - min + 1) + min;
+}
+
+inline uint8_t AngleToWhite(const float angle) {
+	const float maxAngle = M_PI;
+	const float normalizedAngle = angle / maxAngle; // нормализуем угол к диапазону [0, 1]
+	uint8_t white = static_cast<uint8_t>(std::abs(255 * (1 - normalizedAngle))); // вычисляем значение цвета
+	return white;
+}
+
+inline Color3B GetColor(const uint8_t red, const uint8_t white) {
+	float k = white / 255.0f;
+
+	// Устанавливаем значения цвета
+	uint8_t green = static_cast<uint8_t>(red * k);
+	uint8_t blue = static_cast<uint8_t>(green * k);
+
+
+	return Color3B(red, green, blue);
+}
+
+
+void TestAngleToWhite() {
+	std::cout << "========================================\n";
+	for (size_t angle = 0; angle <= 360; ++angle) {
+		float rad = DegreesToRadians(angle);
+		std::cout << "Degree: " << angle << ", rad: " << rad << ", white: " << static_cast<int>(AngleToWhite(rad)) << std::endl;
+	}
+}
+void TestRedToGradient() {
+	std::cout << "========================================\n";
+	//for (int red = 0; red <= 255; ++red) {
+		for (int white = 255; white >= 0; --white) {
+			std::cout << "White = " << white << ", " << GetColor(255, white) << std::endl;
+		}
+		std::cout << "=================\n";
+	//}
 }
 
 int Circles::GetObjectCount(const float objectRadius, const float locationRadius) const {
@@ -42,7 +85,8 @@ Circles::Circles(const Vec2& centerPosition)
 	: _centerPosition(centerPosition)
 {
 	Init();
-	//Tick(CircleEffects::RANDOM_COLOR);
+	TestAngleToWhite();
+	TestRedToGradient();
 }
 
 std::vector<cocos2d::Sprite*> Circles::GetObjects() const
@@ -87,9 +131,9 @@ void Circles::Init()
 			// задаем цвет кругляшу, в зависимости от угла его расположения
 			int red;
 			if (cos < lastCos)
-				red = GetRandom(lastRed - 5, lastRed - 1);
+				red = GetRandom(lastRed - 10, lastRed - 1);
 			else
-				red = GetRandom(lastRed + 1, lastRed + 5);
+				red = GetRandom(lastRed + 1, lastRed + 10);
 			// ограничиваем цветность
 			if (red < 120)
 				red = 120;
@@ -97,20 +141,12 @@ void Circles::Init()
 				red = 255;
 
 			// TODO: вывести формулу зависимости green и blue от red...
-			int green = red * 1.5;
-			int blue = green * 1.5;
-			if (green < 0)
-				green = 0;
-			else if (green > 255)
-				green = 255;
-			if (blue < 0)
-				blue = 0;
-			else if (blue > 255)
-				blue = 255;
-			circle->setColor(Color3B(red, green, blue));
+			circle->setColor(GetColor(red, AngleToWhite(angleRad)));
+			circle->setOpacity(GetRandom(150, 255));
+
 
 			// сместим позицию кругляша, доворотом вектора на 45 град CCV относительно центра массива кругляшей
-			position.rotate(_centerPosition, DegreesToRadians(45));
+			position.rotate(_centerPosition, DegreesToRadians(rotateAngle));
 			circle->setPosition(position);
 
 			circlesInRow.emplace_back(SingleCircle{false, static_cast<bool>(GetRandom(0, 1)), circle});
@@ -239,10 +275,13 @@ void Circles::Tick(const CircleEffects& effect)
 					const int randomMax = GetRandom(0, (opacity > 200 || opacity < 150) ? 15 : 8);
 					int minValue = 0;
 					int maxValue = 255;
+					//minValue = maxValue / (i + 1);
+
 					// для внутренних рядов
 					if (i < circles.size() / 3) {
 						minValue = (255 / 3) * 2;
 					}
+
 					// для средних рядов
 					else if (i < (circles.size() / 3) * 2) {
 						minValue = 255 / 3;
@@ -253,7 +292,7 @@ void Circles::Tick(const CircleEffects& effect)
 						maxValue = (255 / 3) * 2;
 					}
 					// для самого наружнего кольца
-					if (i == circles.size() - 1) {
+					if (i > circles.size() - 1) {
 						minValue = 0;
 						maxValue = 255 / 4;
 					}
