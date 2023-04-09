@@ -41,7 +41,7 @@ inline uint8_t AngleToWhite(const float angle) {
 	return white;
 }
 
-inline Color3B GetColor(const uint8_t red, const uint8_t white) {
+inline Color3B GetRedGradient(const uint8_t red, const uint8_t white) {
 	float k = white / 255.0f;
 
 	// Устанавливаем значения цвета
@@ -52,6 +52,19 @@ inline Color3B GetColor(const uint8_t red, const uint8_t white) {
 	return Color3B(red, green, blue);
 }
 
+inline Color3B GetBlueGradient(const uint8_t red) {
+	int green = red * 1.5;
+	int blue = green * 1.5;
+	if (green < 0)
+		green = 0;
+	else if (green > 255)
+		green = 255;
+	if (blue < 0)
+		blue = 0;
+	else if (blue > 255)
+		blue = 255;
+	return Color3B(red, green, blue);
+}
 
 void TestAngleToWhite() {
 	std::cout << "========================================\n";
@@ -64,7 +77,7 @@ void TestRedToGradient() {
 	std::cout << "========================================\n";
 	//for (int red = 0; red <= 255; ++red) {
 		for (int white = 255; white >= 0; --white) {
-			std::cout << "White = " << white << ", " << GetColor(255, white) << std::endl;
+			std::cout << "White = " << white << ", " << GetRedGradient(255, white) << std::endl;
 		}
 		std::cout << "=================\n";
 	//}
@@ -141,7 +154,9 @@ void Circles::Init()
 				red = 255;
 
 			// TODO: вывести формулу зависимости green и blue от red...
-			circle->setColor(GetColor(red, AngleToWhite(angleRad)));
+			circle->setColor(GetRedGradient(red, AngleToWhite(angleRad)));
+			//circle->setColor(GetBlueGradient(red));
+
 			circle->setOpacity(GetRandom(150, 255));
 
 
